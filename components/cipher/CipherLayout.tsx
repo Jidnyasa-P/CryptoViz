@@ -485,9 +485,12 @@ export default function CipherLayout({ cipher }: CipherLayoutProps) {
                       <p className="mt-2 text-sm font-medium text-zinc-800 dark:text-zinc-200">
                         {item.input || '—'}
                       </p>
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        Output: {item.output}
-                      </p>
+                          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                            Output: {item.output}
+                          </p>
+                          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                            Key: {item.key || '—'}
+                          </p>
                     </li>
                   ))}
                 </ul>
