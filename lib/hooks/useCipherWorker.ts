@@ -73,9 +73,25 @@ export function useCipherWorker() {
 
     worker.onerror = (err) => {
       console.error('Worker error:', err)
-      setError('Web Worker initialization or runtime error.')
+
+      const error = new Error('Web Worker initialization or runtime error.')
+
+      // Reject all pending requests so consumers don't await forever.
+      for (const [, value] of activeRequestsRef.current.entries()) {
+        try {
+          value.reject(error)
+        } catch {
+          // Ignore secondary failures while handling a worker crash.
+        }
+      }
+      activeRequestsRef.current.clear()
+
+      setError(error.message)
       setLoading(false)
+
     }
+
+
 
     workerRef.current = worker
 
