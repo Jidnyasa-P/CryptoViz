@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Analytics } from "@vercel/analytics/next"
 import Navbar from "../components/layout/Navbar";
 import Typewriter from "../components/layout/typewriter";
 export default function Home() {
@@ -98,7 +99,8 @@ export default function Home() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans transition-colors duration-300">
       <Navbar />
 
-     
+     <Analytics />
+      {/* Hero Section */}
       <section className="relative overflow-hidden py-20 px-4 sm:px-6 lg:px-8">
         <div className="absolute top-0 left-1/2 -z-10 h-[600px] w-[1000px] -translate-x-1/2 stroke-zinc-200 [mask-image:radial-gradient(100%_100%_at_top,white,transparent)] dark:stroke-zinc-800">
           <div className="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-indigo-500/10 blur-3xl" />
