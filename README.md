@@ -224,8 +224,9 @@ Ensure you have the following installed before launching:
 
 1. **Clone the repository**:
    ```bash
-   git clone [https://github.com/csxark/CryptoViz.git](https://github.com/csxark/CryptoViz.git)
-   cd cryptoviz
+   git clone https://github.com/csxark/CryptoViz.git
+   cd CryptoViz
+   ```
 
 2. **Install node dependencies**:
    ```bash
@@ -240,7 +241,7 @@ Ensure you have the following installed before launching:
 
 4. **Launch the development server**:
    ```bash
-   npm dev
+   npm run dev
    ```
 
 Open `http://localhost:3000` in your web browser. You should see the CryptoViz landing page with the navigation bar and theme toggle fully functional.
@@ -251,20 +252,10 @@ Open `http://localhost:3000` in your web browser. You should see the CryptoViz l
 
 | Command | Description | When to use |
 | :--- | :--- | :--- |
-| `npm dev` | Starts development server on port 3000. | Active UI coding and development. |
-| `npm build` | Compiles source and exports static assets. | Production preparation or preview check. |
-| `npm postbuild` | Generates Pagefind WASM indexes. | Must run after `npm build` finishes. |
-| `npm lint` | Performs ESLint and Biome code verification. | Code formatting and styling check. |
-| `npm typecheck` | Validates TypeScript files using `tsc`. | Compile safety verification. |
-| `npm test` | Executes unit tests under Vitest. | Validating cipher correctness. |
-| `npm test:watch` | Runs Vitest tests in watch mode. | Active development of cipher test cases. |
-| `npm test:e2e` | Runs Playwright browser tests. | Validating overall user browser paths. |
-| `npm test:a11y` | Executes automated axe-core audits. | Accessibility compliance checks. |
-| `npm test:security` | Asserts security header structures. | Verifying CSP compliance in `vercel.json`. |
-| `npm audit` | Performs vulnerability scanning. | Checking npm dependencies safety. |
-| `npm analyze` | Triggers bundle payload analysis. | Budget validation for Javascript chunk sizes. |
-| `npm db:push` | Syncs local schema definitions. | Updating Neon database structure (Phase 9). |
-| `npm db:migrate` | Runs Drizzle SQL migration routines. | Applying DB migrations in production (Phase 9). |
+| `npm run dev` | Starts the development server. | Active development. |
+| `npm run build` | Builds the project for production. | Before deployment. |
+| `npm run lint` | Runs ESLint to check code quality. | Before committing changes. |
+| `npm start` | Starts the production server after running `npm run build`. | Previewing a production build locally. |
 
 ---
 
