@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Link from "next/link";
 import { docCategories, DocCategory, CipherDocCategory } from './data';
 import { DocumentationSection } from './components/DocumentationSection';
 import { MathBlock } from './components/MathBlock';
@@ -152,6 +153,12 @@ export default function DocumentationPage() {
       
       <div className="w-full h-14 bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-850 px-6 flex items-center justify-between sticky top-0 z-50 transition-colors">
         <div className="flex items-center gap-3">
+          <Link
+  href="/"
+  className="text-xs font-mono text-zinc-500 hover:text-teal-400 transition-colors"
+>
+  ← Home
+</Link>
           <span className="font-mono text-xs text-teal-600 dark:text-teal-400 font-bold tracking-widest uppercase">
             CryptoViz // Docs
           </span>
