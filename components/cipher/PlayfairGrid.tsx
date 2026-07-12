@@ -33,6 +33,39 @@ export default function PlayfairGrid({ matrix, highlights = [] }: PlayfairGridPr
 
   const maxIndex = 24
   const clampedFocusedIndex = Math.min(focusedIndex, maxIndex)
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>, rIdx: number, cIdx: number) => {
+    let nextRow = rIdx
+    let nextCol = cIdx
+
+    switch (event.key) {
+      case 'ArrowRight':
+        nextCol = Math.min(cIdx + 1, 4)
+        break
+      case 'ArrowLeft':
+        nextCol = Math.max(cIdx - 1, 0)
+        break
+      case 'ArrowDown':
+        nextRow = Math.min(rIdx + 1, grid.length - 1)
+        break
+      case 'ArrowUp':
+        nextRow = Math.max(rIdx - 1, 0)
+        break
+      case 'Home':
+        nextRow = 0
+        nextCol = 0
+        break
+      case 'End':
+        nextRow = grid.length - 1
+        nextCol = 4
+        break
+      default:
+        return
+    }
+
+    event.preventDefault()
+    const nextIndex = nextRow * 5 + nextCol
+    setFocusedIndex(nextIndex)
+    cellRefs.current[nextIndex]?.focus()
   }
 
   return (
