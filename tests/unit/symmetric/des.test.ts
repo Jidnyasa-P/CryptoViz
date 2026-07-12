@@ -111,7 +111,7 @@ describe('DES & 3DES Unit Tests', () => {
               }
               return res
             }),
-          (input, keyStr) => {
+          (input: string, keyStr: string) => {
             const enc = encrypt(input, keyStr)
             const dec = decrypt(enc.output, keyStr)
             expect(dec.output).toBe(input)

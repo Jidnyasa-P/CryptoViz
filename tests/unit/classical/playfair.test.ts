@@ -34,12 +34,22 @@ describe('Playfair Cipher Unit Tests', () => {
     expect(() => encrypt('hello', '')).toThrowError(CipherError)
   })
 
+  it('correctly decrypts ciphertext containing consecutive duplicate characters without corruption', () => {
+    const key = 'PLAYFAIR EXAMPLE'
+    const plaintext = 'HE EH'
+    const enc = encrypt(plaintext, key)
+    expect(enc.output).toBe('DMMD')
+
+    const dec = decrypt(enc.output, key)
+    expect(dec.output).toBe('HEEH')
+  })
+
   it('property-based fuzzing: encrypt then decrypt returns prepared plaintext', () => {
     fc.assert(
       fc.property(
         fc.string({ minLength: 2, maxLength: 50 }).map(s => s.replace(/[^a-zA-Z]/g, '') + 'ab'),
         fc.string({ minLength: 1, maxLength: 20 }).map(s => s.replace(/[^a-zA-Z]/g, '') + 'a'),
-        (input, key) => {
+        (input: string, key: string) => {
           const enc = encrypt(input, key)
           const dec = decrypt(enc.output, key)
           // Since decrypt returns uppercase prepared plaintext:

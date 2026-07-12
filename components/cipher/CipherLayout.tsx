@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import React from 'react'
 import dynamic from 'next/dynamic'
 import type { CipherDefinition } from '../../lib/cipher/registry'
@@ -47,6 +47,7 @@ const isValidHistoryArray = (data: unknown): data is HistoryEntry[] => {
 
 export default React.memo(function CipherLayout({ cipher }: CipherLayoutProps) {
   const { runCipher, loading, error: workerError } = useCipherWorker()
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   const [input, setInput] = useState(cipher.defaultInput)
   const [key, setKey] = useState(cipher.defaultKey)
@@ -67,6 +68,9 @@ export default React.memo(function CipherLayout({ cipher }: CipherLayoutProps) {
 
   // Reset inputs when cipher changes
   useEffect(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
     setInput(cipher.defaultInput)
     setKey(cipher.defaultKey)
     setResult(null)
@@ -99,14 +103,27 @@ export default React.memo(function CipherLayout({ cipher }: CipherLayoutProps) {
         if (opt.id === 'bobSecret') setBobSecret(opt.default)
       })
     }
+
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+    }
   }, [cipher])
 
   const handleRun = async () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     setError(null)
     try {
       // Gather options
       const options: any = {
         instrument: true, // Always request instrumented steps for visualizer
+        signal: controller.signal,
       }
 
       if (cipher.id === 'des' || cipher.id === '3des' || cipher.id === 'aes') {
@@ -127,35 +144,45 @@ export default React.memo(function CipherLayout({ cipher }: CipherLayoutProps) {
       const currentAction = cipher.id === 'dh' ? 'encrypt' : action
 
       const res = await runCipher(currentAction, cipher.id, input, key, options)
-      setResult(res)
-      setCurrentStep(0)
+      
+      if (!controller.signal.aborted) {
+        setResult(res)
+        setCurrentStep(0)
 
-      if (res?.output !== undefined) {
-        const entry: HistoryEntry = {
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          input,
-          key,
-          action: currentAction,
-          output: String(res.output),
-          timestamp: new Date().toLocaleString(),
-        }
-
-        setHistory((prev) => {
-          const next = [entry, ...prev].slice(0, 5)
-          if (typeof window !== 'undefined') {
-            try {
-              window.localStorage.setItem(getHistoryStorageKey(cipher.id), JSON.stringify(next))
-            } catch (e) {
-              // Silently fail if localStorage is unavailable (quota exceeded, disabled, private mode, etc.)
-              console.warn('Failed to save history:', e)
-            }
+        if (res?.output !== undefined) {
+          const entry: HistoryEntry = {
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            input,
+            key,
+            action: currentAction,
+            output: String(res.output),
+            timestamp: new Date().toLocaleString(),
           }
-          return next
-        })
+
+          setHistory((prev) => {
+            const next = [entry, ...prev].slice(0, 5)
+            if (typeof window !== 'undefined') {
+              try {
+                window.localStorage.setItem(getHistoryStorageKey(cipher.id), JSON.stringify(next))
+              } catch (e) {
+                // Silently fail if localStorage is unavailable (quota exceeded, disabled, private mode, etc.)
+                console.warn('Failed to save history:', e)
+              }
+            }
+            return next
+          })
+        }
       }
     } catch (err: any) {
+      if (err.name === 'AbortError') {
+        return
+      }
       setError(err.message || 'An error occurred during calculation.')
       setResult(null)
+    } finally {
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null
+      }
     }
   }
 
@@ -231,16 +258,15 @@ export default React.memo(function CipherLayout({ cipher }: CipherLayoutProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Controls Column (Left) */}
-        <div className="flex flex-col gap-4 md:col-span-5">
+        <div className="flex flex-col gap-4 lg:col-span-5">
           {/* Action toggle (Encrypt / Decrypt) */}
           {cipher.category !== 'hash' && cipher.id !== 'dh' && (
             <div className="flex rounded-lg bg-zinc-100 p-0.5 dark:bg-zinc-800/80">
               <button
                 onClick={() => setAction('encrypt')}
-                className={`flex-1 rounded-md py-1.5 text-center text-xs font-semibold transition-all ${
-                  action === 'encrypt'
+className={`flex-1 rounded-md py-1.5 text-center text-xs font-semibold transition-all duration-200 active:scale-95 ${                  action === 'encrypt'
                     ? 'bg-white text-zinc-950 shadow dark:bg-zinc-900 dark:text-white'
                     : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
                 }`}
@@ -249,7 +275,7 @@ export default React.memo(function CipherLayout({ cipher }: CipherLayoutProps) {
               </button>
               <button
                 onClick={() => setAction('decrypt')}
-                className={`flex-1 rounded-md py-1.5 text-center text-xs font-semibold transition-all ${
+                className={`flex-1 rounded-md py-1.5 text-center text-xs font-semibold transition-all duration-200 active:scale-95 ${
                   action === 'decrypt'
                     ? 'bg-white text-zinc-950 shadow dark:bg-zinc-900 dark:text-white'
                     : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
@@ -366,8 +392,7 @@ export default React.memo(function CipherLayout({ cipher }: CipherLayoutProps) {
               <button
                 onClick={handleRun}
                 disabled={loading}
-                className="h-10 flex-1 flex items-center justify-center rounded-lg bg-teal-600 text-center text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-500 focus:outline-none disabled:opacity-50 active:scale-[0.98] dark:bg-teal-500 dark:hover:bg-teal-400"
-              >
+className="h-10 flex-1 flex items-center justify-center rounded-lg bg-teal-600 text-center text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:scale-[1.01] hover:bg-teal-500 hover:shadow-md focus:outline-none disabled:opacity-50 disabled:hover:scale-100 active:scale-[0.98] dark:bg-teal-500 dark:hover:bg-teal-400"              >
                 {loading ? (
                   <span className="flex items-center gap-1.5">
                     <svg className="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
@@ -420,12 +445,11 @@ export default React.memo(function CipherLayout({ cipher }: CipherLayoutProps) {
         </div>
 
         {/* Output & Trace Column (Right) */}
-        <div className="flex flex-col gap-4 md:col-span-7">
+        <div className="flex flex-col gap-4 lg:col-span-7">
           <div className="flex rounded-lg bg-zinc-100 p-0.5 dark:bg-zinc-800/80">
             <button
               onClick={() => setActiveTab('result')}
-              className={`flex-1 rounded-md py-1.5 text-center text-xs font-semibold transition-all ${
-                activeTab === 'result'
+className={`flex-1 rounded-md py-1.5 text-center text-xs font-semibold transition-all duration-200 active:scale-95 ${                activeTab === 'result'
                   ? 'bg-white text-zinc-950 shadow dark:bg-zinc-900 dark:text-white'
                   : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
               }`}
@@ -434,8 +458,7 @@ export default React.memo(function CipherLayout({ cipher }: CipherLayoutProps) {
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`flex-1 rounded-md py-1.5 text-center text-xs font-semibold transition-all ${
-                activeTab === 'history'
+className={`flex-1 rounded-md py-1.5 text-center text-xs font-semibold transition-all duration-200 active:scale-95 ${                activeTab === 'history'
                   ? 'bg-white text-zinc-950 shadow dark:bg-zinc-900 dark:text-white'
                   : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
               }`}

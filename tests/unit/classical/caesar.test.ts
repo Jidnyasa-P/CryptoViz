@@ -41,9 +41,9 @@ describe('Caesar Cipher Unit Tests', () => {
     expect(() => encrypt('HELLO', 'abc')).toThrowError(CipherError)
     expect(() => encrypt('HELLO', 'abc')).toThrow(/integer/)
 
-    // Max length check (> 4096 bytes)
-    const longInput = 'A'.repeat(4097)
-    expect(() => encrypt(longInput, '3')).toThrowError(CipherError)
+   // Max length check (> 2 MB shared limit)
+   const longInput = 'A'.repeat(2 * 1024 * 1024 + 1)
+   expect(() => encrypt(longInput, '3')).toThrowError(CipherError)
   })
 
   it('property-based fuzzing: encrypt then decrypt returns original for alpha/ASCII', () => {

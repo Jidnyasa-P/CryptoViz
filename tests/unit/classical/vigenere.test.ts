@@ -39,7 +39,7 @@ describe('Vigenere Cipher Unit Tests', () => {
       fc.property(
         fc.string({ minLength: 1, maxLength: 100 }),
         fc.string({ minLength: 1, maxLength: 10 }).map(s => s.replace(/[^a-zA-Z]/g, '') + 'a'),
-        (input, key) => {
+        (input: string, key: string) => {
           const enc = encrypt(input, key)
           const dec = decrypt(enc.output, key)
           expect(dec.output).toBe(input)

@@ -64,7 +64,7 @@ describe('AES Unit Tests', () => {
             }
             return res
           }),
-          (input, keyStr) => {
+          (input: string, keyStr: string) => {
             const enc = encrypt(input, keyStr)
             const dec = decrypt(enc.output, keyStr)
             expect(dec.output).toBe(input)
@@ -72,6 +72,24 @@ describe('AES Unit Tests', () => {
         ),
         { numRuns: 500 }
       )
+    })
+  })
+
+  describe('AES Instrumented CBC Mode', () => {
+    it('round-trips encrypt/decrypt correctly in instrumented CBC mode', () => {
+      const plaintext = 'Hello, CryptoViz!'
+      const key = '0123456789abcdef0123456789abcdef' // 16 bytes (32 hex characters)
+      const iv = '000102030405060708090a0b0c0d0e0f' // 16 bytes (32 hex characters)
+
+      const encrypted = encrypt(plaintext, key, { instrument: true, mode: 'CBC', iv })
+      // Verify that encryption works and has steps
+      expect(encrypted.steps.length).toBe(45) // 44 standard + 1 CBC Mode XOR
+      expect(encrypted.steps.some(s => s.label === 'Block 1 — CBC Mode XOR')).toBe(true)
+
+      const decrypted = decrypt(encrypted.output, key, { instrument: true, mode: 'CBC' })
+      expect(decrypted.output).toBe(plaintext)
+      expect(decrypted.steps.length).toBe(45) // 44 standard + 1 CBC Mode XOR
+      expect(decrypted.steps.some(s => s.label === 'Block 1 — CBC Mode XOR')).toBe(true)
     })
   })
 })

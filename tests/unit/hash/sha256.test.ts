@@ -27,8 +27,8 @@ describe('SHA-256 Hash Unit Tests', () => {
     expect(result.steps[71].label).toBe('Final hash output')
   })
 
-  it('validates input limit (> 4096 bytes)', () => {
-    const longInput = 'a'.repeat(4097)
-    expect(() => encrypt(longInput)).toThrowError(CipherError)
-  })
+ it('validates input limit (> 2 MB shared limit)', () => {
+  const longInput = 'a'.repeat(2 * 1024 * 1024 + 1)
+  expect(() => encrypt(longInput)).toThrowError(CipherError)
+})
 })

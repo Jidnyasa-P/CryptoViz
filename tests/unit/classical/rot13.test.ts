@@ -29,7 +29,7 @@ describe('ROT13 Cipher Unit Tests', () => {
 
   it('throws correct errors for invalid input', () => {
     expect(() => encrypt('')).toThrowError(CipherError)
-    const longInput = 'A'.repeat(4097)
+    const longInput = 'A'.repeat(2 * 1024 * 1024 + 1)
     expect(() => encrypt(longInput)).toThrowError(CipherError)
   })
 
