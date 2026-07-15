@@ -26,6 +26,8 @@ import { encrypt as sha512Encrypt, decrypt as sha512Decrypt } from '../cipher/ha
 import { encrypt as md5Encrypt, decrypt as md5Decrypt } from '../cipher/hash/md5'
 import { encrypt as hmacEncrypt, decrypt as hmacDecrypt } from '../cipher/hash/hmac'
 import { encrypt as bcryptEncrypt, decrypt as bcryptDecrypt } from '../cipher/hash/bcrypt'
+import { encrypt as sha3Encrypt, decrypt as sha3Decrypt } from '../cipher/hash/sha3'
+
 import { deriveKey } from '../kdf/pbkdf2'
 
 import type { WorkerRequest, WorkerResponse } from '../../types/worker'
@@ -160,6 +162,10 @@ workerScope.addEventListener('message', async (event: MessageEvent<WorkerRequest
           ? bcryptEncrypt(input, key, options)
           : bcryptDecrypt(input, key, options)
         break
+      case 'sha3':
+        result = encryptMode
+          ? sha3Encrypt(input, key, options)
+          : sha3Decrypt()
       case 'pbkdf2':
         // KDF derivation doesn't fit the encrypt/decrypt(input, key, options)
         // shape everything else uses — password arrives as `input`, KDF

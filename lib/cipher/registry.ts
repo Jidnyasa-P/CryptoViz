@@ -226,6 +226,15 @@ export const CIPHER_REGISTRY: CipherDefinition[] = [
       },
     ],
   },
+  {
+    id: 'sha3',
+    name: 'SHA3-256',
+    category: 'hash',
+    description: 'NIST FIPS 202 hash function using the Keccak sponge construction — 24-round permutation over a 1600-bit state.',
+    defaultKey: '',
+    defaultInput: 'abc',
+    securityStatus: 'secure',
+  },
   // Asymmetric
   {
     id: 'rsa',

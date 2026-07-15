@@ -81,6 +81,7 @@ export type CipherName =
   | 'sha512'
   | 'md5'
   | 'bcrypt'
+  | 'sha3'
   | 'hmac'
 
 export interface TestVector {
