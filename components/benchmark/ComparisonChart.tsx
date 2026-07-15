@@ -34,7 +34,27 @@ const getCategoryColor = (category: string) => {
   }
 }
 
-const CustomChartTooltip = ({ active, payload, label }: any) => {
+interface TooltipPayloadItem {
+  payload: {
+    name: string
+    fullName: string
+    category: string
+    avgTime: number
+    minTime: number
+    maxTime: number
+    opsPerSec: number
+    workerExecutionTime?: number
+    memoryUsage?: number
+  }
+}
+
+interface CustomChartTooltipProps {
+  active?: boolean
+  payload?: TooltipPayloadItem[]
+  label?: string
+}
+
+const CustomChartTooltip = ({ active, payload, label }: CustomChartTooltipProps) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload
     if (!data) return null
@@ -124,10 +144,11 @@ export default React.memo(function ComparisonChart({
 
   // Track isDark class changes
   useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'))
-    const observer = new MutationObserver(() => {
+    const syncTheme = () => {
       setIsDark(document.documentElement.classList.contains('dark'))
-    })
+    }
+    syncTheme()
+    const observer = new MutationObserver(syncTheme)
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['class'],
@@ -499,10 +520,11 @@ export default React.memo(function ComparisonChart({
           <button
             type="button"
             onClick={() => toggleCategory('classical')}
+            aria-pressed={activeCategories.classical}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all ${
               activeCategories.classical
                 ? 'bg-teal-50 border-teal-200 text-teal-800 dark:bg-teal-950/40 dark:border-teal-900 dark:text-teal-300'
-                : 'bg-zinc-50 border-zinc-200 text-zinc-500 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
+                : 'bg-zinc-50 border-zinc-200 text-zinc-550 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
             }`}
           >
             <div className={`h-2 w-2 rounded-full ${activeCategories.classical ? 'bg-[#0d9488]' : 'bg-zinc-300 dark:bg-zinc-700'}`} />
@@ -511,10 +533,11 @@ export default React.memo(function ComparisonChart({
           <button
             type="button"
             onClick={() => toggleCategory('symmetric')}
+            aria-pressed={activeCategories.symmetric}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all ${
               activeCategories.symmetric
                 ? 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950/40 dark:border-blue-900 dark:text-blue-300'
-                : 'bg-zinc-50 border-zinc-200 text-zinc-500 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
+                : 'bg-zinc-50 border-zinc-200 text-zinc-550 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
             }`}
           >
             <div className={`h-2 w-2 rounded-full ${activeCategories.symmetric ? 'bg-[#2563eb]' : 'bg-zinc-300 dark:bg-zinc-700'}`} />
@@ -523,10 +546,11 @@ export default React.memo(function ComparisonChart({
           <button
             type="button"
             onClick={() => toggleCategory('asymmetric')}
+            aria-pressed={activeCategories.asymmetric}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all ${
               activeCategories.asymmetric
                 ? 'bg-pink-50 border-pink-200 text-pink-800 dark:bg-pink-950/40 dark:border-pink-900 dark:text-pink-300'
-                : 'bg-zinc-50 border-zinc-200 text-zinc-500 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
+                : 'bg-zinc-50 border-zinc-200 text-zinc-550 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
             }`}
           >
             <div className={`h-2 w-2 rounded-full ${activeCategories.asymmetric ? 'bg-[#db2777]' : 'bg-zinc-300 dark:bg-zinc-700'}`} />
@@ -535,10 +559,11 @@ export default React.memo(function ComparisonChart({
           <button
             type="button"
             onClick={() => toggleCategory('hash')}
+            aria-pressed={activeCategories.hash}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all ${
               activeCategories.hash
                 ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-950/40 dark:border-green-900 dark:text-green-300'
-                : 'bg-zinc-50 border-zinc-200 text-zinc-500 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
+                : 'bg-zinc-50 border-zinc-200 text-zinc-550 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
             }`}
           >
             <div className={`h-2 w-2 rounded-full ${activeCategories.hash ? 'bg-[#16a34a]' : 'bg-zinc-300 dark:bg-zinc-700'}`} />
@@ -555,10 +580,11 @@ export default React.memo(function ComparisonChart({
             <button
               type="button"
               onClick={() => toggleKey('avgTime')}
+              aria-pressed={activeKeys.avgTime}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all ${
                 activeKeys.avgTime
                   ? 'bg-teal-50 border-teal-200 text-teal-800 dark:bg-teal-950/40 dark:border-teal-900 dark:text-teal-300'
-                  : 'bg-zinc-50 border-zinc-200 text-zinc-500 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
+                  : 'bg-zinc-50 border-zinc-200 text-zinc-550 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
               }`}
             >
               <div className={`h-2 w-2 rounded-full ${activeKeys.avgTime ? 'bg-[#14b8a6]' : 'bg-zinc-300 dark:bg-zinc-700'}`} />
@@ -567,10 +593,11 @@ export default React.memo(function ComparisonChart({
             <button
               type="button"
               onClick={() => toggleKey('minTime')}
+              aria-pressed={activeKeys.minTime}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all ${
                 activeKeys.minTime
                   ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-950/40 dark:border-green-900 dark:text-green-300'
-                  : 'bg-zinc-50 border-zinc-200 text-zinc-500 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
+                  : 'bg-zinc-50 border-zinc-200 text-zinc-550 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
               }`}
             >
               <div className={`h-2 w-2 rounded-full ${activeKeys.minTime ? 'bg-[#22c55e]' : 'bg-zinc-300 dark:bg-zinc-700'}`} />
@@ -579,10 +606,11 @@ export default React.memo(function ComparisonChart({
             <button
               type="button"
               onClick={() => toggleKey('maxTime')}
+              aria-pressed={activeKeys.maxTime}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all ${
                 activeKeys.maxTime
                   ? 'bg-red-50 border-red-200 text-red-800 dark:bg-red-950/40 dark:border-red-900 dark:text-red-300'
-                  : 'bg-zinc-50 border-zinc-200 text-zinc-500 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
+                  : 'bg-zinc-50 border-zinc-200 text-zinc-550 opacity-60 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-500'
               }`}
             >
               <div className={`h-2 w-2 rounded-full ${activeKeys.maxTime ? 'bg-[#ef4444]' : 'bg-zinc-300 dark:bg-zinc-700'}`} />
@@ -596,7 +624,7 @@ export default React.memo(function ComparisonChart({
           {filteredData.map((item, index) => (
             <div
               key={index}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-50 border border-zinc-150 text-[11px] text-zinc-700 dark:bg-zinc-900/60 dark:border-zinc-800 dark:text-zinc-300 animate-fade-in"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-50 border border-zinc-200 text-[11px] text-zinc-700 dark:bg-zinc-900/60 dark:border-zinc-800 dark:text-zinc-300 animate-fade-in"
             >
               <div
                 className="h-2 w-2 rounded-full"
