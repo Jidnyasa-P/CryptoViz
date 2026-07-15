@@ -75,6 +75,7 @@ export type CipherName =
   | 'rsa'
   | 'dh'
   | 'ecc'
+  | 'elgamal'
   | 'sha256'
   | 'sha512'
   | 'md5'
