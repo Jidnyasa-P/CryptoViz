@@ -505,6 +505,8 @@ export default function CipherLayout({ cipher }: CipherLayoutProps) {
     setAnnotationStore(
       clearScopeAnnotations(annotationStore, annotationScope),
     )
+
+    await navigator.clipboard.writeText(permalink)
   }
 
   const traceOptions: Record<string, unknown> = {
